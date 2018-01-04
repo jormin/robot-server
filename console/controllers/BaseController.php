@@ -1,7 +1,7 @@
 <?php
 namespace console\controllers;
 
-use yii\web\Controller;
+use yii\console\Controller;
 
 /**
  * Class BaseController
@@ -11,19 +11,13 @@ class BaseController extends Controller
 {
     // 关闭CSRF
     public $enableCsrfValidation = false;
+
     // 所有操作
     public $actions = [
         'test' => [
-            'index' => '测试'
+            'index' => '测试',
+            'chat' => '聊天',
         ],
-        'user' => [
-            'reset-password' => '重置用户密码',
-            'reset-developer' => '重置开发者账号'
-        ],
-        'danger' => [
-            'reset-password' => '重置用户密码',
-            'generate-document' => '重新生成隐患电子档案'
-        ]
     ];
 
     protected $controllerID, $actionID;
@@ -31,8 +25,9 @@ class BaseController extends Controller
     /**
      * 操作前处理
      *
-     * @param \yii\base\Action $action
+     * @param $action
      * @return bool
+     * @throws \yii\web\BadRequestHttpException
      */
     public function beforeAction($action)
     {
