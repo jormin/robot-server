@@ -17,6 +17,7 @@ class BaseController extends Controller
         'test' => [
             'index' => '测试',
             'chat' => '聊天',
+            'convert' => '转换格式',
         ],
     ];
 

@@ -1,5 +1,7 @@
 <?php
 namespace console\controllers;
+use FFMpeg\FFMpeg;
+use FFMpeg\Format\Video\WMV;
 use Jormin\BaiduSpeech\BaiduSpeech;
 use Jormin\IP\IP;
 use Jormin\TuLing\TuLing;
@@ -42,6 +44,18 @@ class TestController extends BaseController
         $this->log('合成语音文件成功，文件目录：'.$response['data']);
         $this->log('开始播放：');
         exec('sudo play '.$response['data']);
+    }
+
+    /**
+     *
+     */
+    public function actionConvert()
+    {
+        $file = \Yii::$app->basePath . '/../storage/combine/20180104/5a4e7a2a5fd9c.mp3';
+        $outFile = \Yii::$app->basePath . '/../storage/combine/20180104/5a4e7a2a5fd9c-2.wmv';
+        $ffmpeg = FFMpeg::create();
+        $audio = $ffmpeg->open($file);
+        $audio->save(new WMV(), $outFile);
     }
 
 }

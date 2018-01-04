@@ -21,7 +21,8 @@
         "overtrue/flysystem-qiniu": "^1.0",
         "jormin/baidu-speech": "^1.0",
         "jormin/ip": "^1.0",
-        "jormin/tuling": "^1.0"
+        "jormin/tuling": "^1.0",
+        "php-ffmpeg/php-ffmpeg": "^0.11.0"
     },
     "require-dev": {
         "yiisoft/yii2-debug": "~2.0.0",
