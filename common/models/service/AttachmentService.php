@@ -52,6 +52,8 @@ class AttachmentService
     public static function convert($file){
         $inputFile = \Yii::$app->basePath . '/../'.$file;
         $outFile = pathinfo($inputFile, PATHINFO_DIRNAME).'/'.basename($inputFile, pathinfo($inputFile, PATHINFO_EXTENSION)).'.wav';
+        p($inputFile);
+        p($inputFile);
         $ffmpeg = FFMpeg::create();
         $audio = $ffmpeg->open($file);
         $audio->save(new WMV(), $outFile);
