@@ -22,6 +22,7 @@ use common\models\lib\Cache;
  *
  * @property Attachment[] $attachments
  * @property UserOpen[] $userOpens
+ * @property UserConfig $userConfig
  */
 class User extends \yii\db\ActiveRecord
 {
@@ -80,6 +81,14 @@ class User extends \yii\db\ActiveRecord
     public function getUserOpens()
     {
         return $this->hasMany(UserOpen::className(), ['userID' => 'id']);
+    }
+
+    /**
+     * @return \yii\db\ActiveQuery
+     */
+    public function getUserConfig()
+    {
+        return $this->hasMany(UserConfig::className(), ['userID' => 'id']);
     }
 
     /**
