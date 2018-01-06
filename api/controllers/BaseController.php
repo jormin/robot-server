@@ -28,14 +28,17 @@ class BaseController extends Controller
         if(!parent::beforeAction($action)){
             return false;
         }
-        if(!\Yii::$app->request->isPost){
-            $this->error();
+        if(\Yii::$app->request->isGet){
+            $params = \Yii::$app->request->get();
+        }else{
+            $params = \Yii::$app->request->post();
         }
-        $post = $this->paramTrim(\Yii::$app->request->post());
-        if(!empty($post['token'])){
-            $this->userToken = $post['token'];
-            unset($post['token']);
+        $params = $this->paramTrim($params);
+        if(!empty($params['token'])){
+            $this->userToken = $params['token'];
+            unset($params['token']);
         }
+        $this->params = $params;
         return true;
     }
 
