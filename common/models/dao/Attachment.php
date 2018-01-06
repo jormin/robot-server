@@ -32,7 +32,7 @@ class Attachment extends \yii\db\ActiveRecord
     public function rules()
     {
         return [
-            [['userID', 'name', 'path'], 'required'],
+            [['name', 'path'], 'required'],
             [['userID', 'type', 'createTime'], 'integer'],
             [['name', 'path'], 'string', 'max' => 255],
         ];
@@ -86,14 +86,6 @@ class Attachment extends \yii\db\ActiveRecord
      */
     public function resetCache(){
         Cache::clear('ATTACHMENT_'.$this->id);
-    }
-
-    /**
-     * @return \yii\db\ActiveQuery
-     */
-    public function getUser()
-    {
-        return $this->hasOne(User::className(), ['id' => 'userID']);
     }
 
     /**
