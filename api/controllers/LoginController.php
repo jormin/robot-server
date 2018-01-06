@@ -16,7 +16,9 @@ class LoginController extends BaseController
      */
     public function actionIndex(){
         $code = $this->getParam('code');
-        $return = AuthService::login($code);
+        $encryptedData = $this->getParam('encryptedData');
+        $iv = $this->getParam('iv');
+        $return = AuthService::login($code, $encryptedData, $iv);
         $this->autoResult($return);
     }
 }

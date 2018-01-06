@@ -9,6 +9,7 @@ use common\models\dao\UserToken;
 use common\models\lib\CommonFunction;
 use common\models\lib\CommonVar;
 use common\models\lib\UserMsg;
+use common\models\lib\WeChat\WeChatBizDataCrypt;
 use Jormin\IP\IP;
 
 /**
@@ -21,9 +22,12 @@ class AuthService {
      * 登录
      *
      * @param $code
+     * @param $encryptedData
+     * @param $iv
      * @return array
+     * @throws \yii\db\Exception
      */
-    public static function login($code){
+    public static function login($code, $encryptedData, $iv){
         $return = ['status'=>0, 'msg'=>UserMsg::$timeOut];
         $config = \Yii::$app->params['wechat']['xcx'];
         $url = 'https://api.weixin.qq.com/sns/jscode2session?appid='.$config['appID'].'&secret='.$config['appSecret'].'&js_code='.$code.'&grant_type=authorization_code';
@@ -32,10 +36,16 @@ class AuthService {
             $return['msg'] = '微信登录失败，失败原因编码：'.$response['errcode'].'，失败说明：'.$response['errmsg'];
             return $return;
         }
-        $transaction = \Yii::$app->db->beginTransaction();
-        $openID = $response['openid'];
         $sessionKey = $response['session_key'];
-        $unionID = $response['unionid'];
+        $crypt = new WeChatBizDataCrypt($config['appID'], $sessionKey);
+        $result = $crypt->decryptData($encryptedData, $iv, $response);
+        if($result != 0){
+            $return['msg'] = '解密微信加密信息失败，失败原因编码：'.$result;
+            return $return;
+        }
+        $transaction = \Yii::$app->db->beginTransaction();
+        $openID = $response['openId'];
+        $unionID = $response['unionId'];
         $user = User::getByUnionID($unionID, true);
         $newUser = false;
         if(!$user){
@@ -44,6 +54,12 @@ class AuthService {
             $newUser = true;
         }
         $user->sessionKey = $sessionKey;
+        $user->nickName = $response['nickName'];
+        $user->gender = $response['gender'];
+        $user->city = $response['city'];
+        $user->province = $response['province'];
+        $user->country = $response['country'];
+        $user->avatarUrl = $response['avatarUrl'];
         if(!$user->save()){
             $transaction->rollBack();
             $return['msg'] = '保存用户信息出错';
