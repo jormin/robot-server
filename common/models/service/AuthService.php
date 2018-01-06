@@ -39,11 +39,11 @@ class AuthService {
         $sessionKey = $response['session_key'];
         $crypt = new WeChatBizDataCrypt($config['appID'], $sessionKey);
         $result = $crypt->decryptData($encryptedData, $iv, $response);
-        var_dump($response);die;
         if($result != 0){
             $return['msg'] = '解密微信加密信息失败，失败原因编码：'.$result;
             return $return;
         }
+        $response = json_decode($response, true);
         $transaction = \Yii::$app->db->beginTransaction();
         $openID = $response['openId'];
         $unionID = $response['unionId'];
