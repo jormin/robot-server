@@ -5,7 +5,7 @@ namespace api\controllers;
 use common\models\dao\Attachment;
 use common\models\service\AttachmentService;
 
-class AttachmentController extends AuthController
+class AttachmentController extends BaseController
 {
 
     /**

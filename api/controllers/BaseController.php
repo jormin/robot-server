@@ -1,6 +1,8 @@
 <?php
 namespace api\controllers;
 
+use common\models\dao\User;
+use common\models\dao\UserToken;
 use common\models\lib\UserMsg;
 use common\models\lib\Validate;
 use yii\web\Controller;
@@ -14,7 +16,7 @@ class BaseController extends Controller
 
     public $enableCsrfValidation = false;
 
-    protected $params, $userToken;
+    protected $params, $userID, $userInfo;
 
     /**
      * 预处理
@@ -35,7 +37,27 @@ class BaseController extends Controller
         }
         $params = $this->paramTrim($params);
         if(!empty($params['token'])){
-            $this->userToken = $params['token'];
+            $userToken = UserToken::findOne(['token'=>$params['token']]);
+            if(!$userToken){
+                $this->authFail();
+            }
+            $currentTime = time();
+            if($userToken->status != 1 || $currentTime > $userToken->expireTime){
+                $this->authFail(UserMsg::$tokenExpire);
+            }
+            // 当Token有效期剩余最后10分钟时自动延长
+            if($userToken->expireTime - $currentTime < 600){
+                $userToken->expireTime += 3600;
+                if(!$userToken->save()){
+                    $this->fail(UserMsg::$extendUserTokenError);
+                }
+            }
+            $user = User::find()->where(['id'=>$userToken['userID']])->asArray()->one();
+            if(!$user){
+                $this->authFail();
+            }
+            $this->userID = $user['id'];
+            $this->userInfo = $user;
             unset($params['token']);
         }
         $this->params = $params;

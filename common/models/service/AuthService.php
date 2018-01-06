@@ -107,6 +107,7 @@ class AuthService {
             'openID' => $openID,
             'unionID' => $unionID,
             'sessionKey' => $sessionKey,
+            'token' => $userToken->token,
         ];
         $return = ['status'=>1, 'msg'=>UserMsg::$success, 'data'=>$data];
         return $return;
