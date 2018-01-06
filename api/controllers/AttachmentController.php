@@ -1,8 +1,7 @@
 <?php
 
-namespace ucenter\controllers;
+namespace api\controllers;
 
-use common\controllers\AuthController;
 use common\models\dao\Attachment;
 use common\models\service\AttachmentService;
 

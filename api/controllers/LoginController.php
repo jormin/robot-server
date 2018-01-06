@@ -1,8 +1,7 @@
 <?php
 
-namespace ucenter\controllers;
+namespace api\controllers;
 
-use common\controllers\BaseController;
 use common\models\service\AuthService;
 
 /**

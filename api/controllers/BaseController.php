@@ -1,5 +1,5 @@
 <?php
-namespace common\controllers;
+namespace api\controllers;
 
 use common\models\lib\UserMsg;
 use common\models\lib\Validate;

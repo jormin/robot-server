@@ -1,5 +1,5 @@
 <?php
-namespace common\controllers;
+namespace api\controllers;
 use common\models\dao\User;
 use common\models\dao\UserToken;
 use common\models\lib\UserMsg;
