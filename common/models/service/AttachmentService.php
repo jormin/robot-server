@@ -4,6 +4,8 @@ namespace common\models\service;
 
 use common\models\dao\Attachment;
 use common\models\lib\UserMsg;
+use FFMpeg\FFMpeg;
+use FFMpeg\Format\Video\WMV;
 use Jormin\Excel\Excel;
 use yii\web\UploadedFile;
 
@@ -17,10 +19,9 @@ class AttachmentService
     /**
      * 上传文件
      *
-     * @param $userID
      * @return array
      */
-    public static function upload($userID){
+    public static function upload(){
         $return = ['status'=>0, 'msg'=>UserMsg::$timeOut];
         $uploadFile = UploadedFile::getInstanceByName('file');
         if (!$uploadFile) {
@@ -38,16 +39,22 @@ class AttachmentService
             $return['msg'] = '保存文件失败';
             return $return;
         }
-        $attachment = new Attachment();
-        $attachment->userID = $userID;
-        $attachment->name = $uploadFile->baseName.'.'.$uploadFile->extension;
-        $attachment->path = $relatePath;
-        $attachment->type = 0;
-        if($attachment->save()){
-            $return = ['status'=>1, 'msg'=>'上传文件成功', 'data'=>$attachment->attributes];
-        }else{
-            $return['msg'] = '记录文件失败';
-        }
+        $return = ['status'=>1, 'msg'=>'上传文件成功', 'data'=>$relatePath];
         return $return;
+    }
+
+    /**
+     * 文件转码
+     *
+     * @param $file
+     * @return string
+     */
+    public static function convert($file){
+        $inputFile = \Yii::$app->basePath . '/../'.$file;
+        $outFile = pathinfo($inputFile, PATHINFO_DIRNAME).'/'.basename($inputFile, pathinfo($inputFile, PATHINFO_EXTENSION)).'.wav';
+        $ffmpeg = FFMpeg::create();
+        $audio = $ffmpeg->open($file);
+        $audio->save(new WMV(), $outFile);
+        return $outFile;
     }
 }

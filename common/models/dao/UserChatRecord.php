@@ -35,7 +35,7 @@ class UserChatRecord extends \yii\db\ActiveRecord
     public function rules()
     {
         return [
-            [['userID', 'message', 'messageAudio', 'config'], 'required'],
+            [['message', 'messageAudio', 'config'], 'required'],
             [['userID', 'createTime', 'updateTime'], 'integer'],
             [['message', 'reply', 'messageAudio', 'replyAudio', 'config'], 'string', 'max' => 255],
             [['userID'], 'exist', 'skipOnError' => true, 'targetClass' => User::className(), 'targetAttribute' => ['userID' => 'id']],
@@ -58,14 +58,6 @@ class UserChatRecord extends \yii\db\ActiveRecord
             'createTime' => '创建时间',
             'updateTime' => '更新时间',
         ];
-    }
-
-    /**
-     * @return \yii\db\ActiveQuery
-     */
-    public function getUser()
-    {
-        return $this->hasOne(User::className(), ['id' => 'userID']);
     }
 
     /**
