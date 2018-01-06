@@ -51,8 +51,8 @@ class TestController extends BaseController
      */
     public function actionConvert()
     {
-        $file = \Yii::$app->basePath . '/../storage/combine/20180104/5a4e7a2a5fd9c.mp3';
-        $outFile = \Yii::$app->basePath . '/../storage/combine/20180104/5a4e7a2a5fd9c-2.wmv';
+        $file = '/home/vagrant/code/1515263872.mp3';
+        $outFile = '/home/vagrant/code/1515263872.wav';
         $ffmpeg = FFMpeg::create();
         $audio = $ffmpeg->open($file);
         $audio->save(new WMV(), $outFile);
