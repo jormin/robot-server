@@ -1,48 +1,36 @@
 <?php
+
 namespace common\models\dao;
 
-use Yii;
-use yii\base\NotSupportedException;
-use yii\behaviors\TimestampBehavior;
-use yii\db\ActiveRecord;
-use yii\web\IdentityInterface;
+use common\models\lib\Cache;
 
 /**
- * User model
+ * This is the model class for table "robot_user".
  *
- * @property integer $id
- * @property string $username
- * @property string $password_hash
- * @property string $password_reset_token
- * @property string $email
- * @property string $auth_key
- * @property integer $status
- * @property integer $created_at
- * @property integer $updated_at
- * @property string $password write-only password
+ * @property int $id 用户ID
+ * @property string $unionID 微信UnionID
+ * @property string $nickName 昵称
+ * @property string $avatarUrl 头像
+ * @property int $gender 性别
+ * @property string $country 国家
+ * @property string $province 省份
+ * @property string $city 城市
+ * @property string $language 语言
+ * @property string $sessionKey 用户当前登录用的微信SessionKey
+ * @property int $createTime 创建时间
+ * @property int $updateTime 更新时间
+ *
+ * @property Attachment[] $attachments
+ * @property UserOpen[] $userOpens
  */
-class User extends ActiveRecord implements IdentityInterface
+class User extends \yii\db\ActiveRecord
 {
-    const STATUS_DELETED = 0;
-    const STATUS_ACTIVE = 10;
-
-
     /**
      * @inheritdoc
      */
     public static function tableName()
     {
-        return '{{%user}}';
-    }
-
-    /**
-     * @inheritdoc
-     */
-    public function behaviors()
-    {
-        return [
-            TimestampBehavior::className(),
-        ];
+        return 'robot_user';
     }
 
     /**
@@ -51,139 +39,121 @@ class User extends ActiveRecord implements IdentityInterface
     public function rules()
     {
         return [
-            ['status', 'default', 'value' => self::STATUS_ACTIVE],
-            ['status', 'in', 'range' => [self::STATUS_ACTIVE, self::STATUS_DELETED]],
+            [['gender', 'createTime', 'updateTime'], 'integer'],
+            [['unionID'], 'string', 'max' => 100],
+            [['nickName', 'avatarUrl', 'country', 'province', 'city', 'language', 'sessionKey'], 'string', 'max' => 255],
         ];
     }
 
     /**
      * @inheritdoc
      */
-    public static function findIdentity($id)
+    public function attributeLabels()
     {
-        return static::findOne(['id' => $id, 'status' => self::STATUS_ACTIVE]);
+        return [
+            'id' => '用户ID',
+            'unionID' => '微信UnionID',
+            'nickName' => '昵称',
+            'avatarUrl' => '头像',
+            'gender' => '性别',
+            'country' => '国家',
+            'province' => '省份',
+            'city' => '城市',
+            'language' => '语言',
+            'sessionKey' => '用户当前登录用的微信SessionKey',
+            'createTime' => '创建时间',
+            'updateTime' => '更新时间',
+        ];
     }
 
     /**
-     * @inheritdoc
+     * @return \yii\db\ActiveQuery
      */
-    public static function findIdentityByAccessToken($token, $type = null)
+    public function getAttachments()
     {
-        throw new NotSupportedException('"findIdentityByAccessToken" is not implemented.');
+        return $this->hasMany(Attachment::className(), ['userID' => 'id']);
     }
 
     /**
-     * Finds user by username
-     *
-     * @param string $username
-     * @return static|null
+     * @return \yii\db\ActiveQuery
      */
-    public static function findByUsername($username)
+    public function getUserOpens()
     {
-        return static::findOne(['username' => $username, 'status' => self::STATUS_ACTIVE]);
+        return $this->hasMany(UserOpen::className(), ['userID' => 'id']);
     }
 
     /**
-     * Finds user by password reset token
+     * 保存前预处理
      *
-     * @param string $token password reset token
-     * @return static|null
-     */
-    public static function findByPasswordResetToken($token)
-    {
-        if (!static::isPasswordResetTokenValid($token)) {
-            return null;
-        }
-
-        return static::findOne([
-            'password_reset_token' => $token,
-            'status' => self::STATUS_ACTIVE,
-        ]);
-    }
-
-    /**
-     * Finds out if password reset token is valid
-     *
-     * @param string $token password reset token
+     * @param bool $insert
      * @return bool
      */
-    public static function isPasswordResetTokenValid($token)
+    public function beforeSave($insert)
     {
-        if (empty($token)) {
+        if(parent::beforeSave($insert)){
+            if($this->isNewRecord){
+                $this->createTime = $this->updateTime = time();
+            }else{
+                $this->updateTime = time();
+            }
+            return true;
+        }else{
             return false;
         }
-
-        $timestamp = (int) substr($token, strrpos($token, '_') + 1);
-        $expire = Yii::$app->params['user.passwordResetTokenExpire'];
-        return $timestamp + $expire >= time();
     }
 
     /**
-     * @inheritdoc
-     */
-    public function getId()
-    {
-        return $this->getPrimaryKey();
-    }
-
-    /**
-     * @inheritdoc
-     */
-    public function getAuthKey()
-    {
-        return $this->auth_key;
-    }
-
-    /**
-     * @inheritdoc
-     */
-    public function validateAuthKey($authKey)
-    {
-        return $this->getAuthKey() === $authKey;
-    }
-
-    /**
-     * Validates password
+     * 保存后清理缓存
      *
-     * @param string $password password to validate
-     * @return bool if password provided is valid for current user
+     * @param bool $insert
+     * @param array $changedAttributes
      */
-    public function validatePassword($password)
+    public function afterSave($insert, $changedAttributes)
     {
-        return Yii::$app->security->validatePassword($password, $this->password_hash);
+        Cache::clear('USER_'.$this->id);
+        Cache::clear('USER_UNION_ID_'.$this->unionID);
+        parent::afterSave($insert, $changedAttributes);
     }
 
     /**
-     * Generates password hash from password and sets it to the model
+     * 查找用户
      *
-     * @param string $password
+     * @param $id
+     * @param bool $isModel
+     * @return array|null|\common\models\dao\User
      */
-    public function setPassword($password)
-    {
-        $this->password_hash = Yii::$app->security->generatePasswordHash($password);
+    public static function get($id, $isModel=false){
+        if($isModel){
+            return self::find()->where(['id'=>$id])->one();
+        }else{
+            $cacheName = 'USER_'.$id;
+            $cache = Cache::get($cacheName);
+            if($cache === false){
+                $cache = self::find()->where(['id'=>$id])->asArray()->one();
+                Cache::set($cacheName, $cache);
+            }
+            return $cache;
+        }
     }
 
     /**
-     * Generates "remember me" authentication key
+     * 根据UnionID查找用户
+     *
+     * @param $unionID
+     * @param bool $isModel
+     * @return array|mixed|null|\yii\db\ActiveRecord
      */
-    public function generateAuthKey()
-    {
-        $this->auth_key = Yii::$app->security->generateRandomString();
-    }
-
-    /**
-     * Generates new password reset token
-     */
-    public function generatePasswordResetToken()
-    {
-        $this->password_reset_token = Yii::$app->security->generateRandomString() . '_' . time();
-    }
-
-    /**
-     * Removes password reset token
-     */
-    public function removePasswordResetToken()
-    {
-        $this->password_reset_token = null;
+    public static function getByUnionID($unionID, $isModel=false){
+        if($isModel){
+            return self::find()->where(['unionID'=>$unionID])->one();
+        }else{
+            $cacheName = 'USER_UNION_ID_'.$unionID;
+            $cache = Cache::get($cacheName);
+            if($cache === false){
+                $cache = self::find()->where(['unionID'=>$unionID])->asArray()->one();
+                Cache::set($cacheName, $cache);
+            }
+            return $cache;
+        }
     }
 }

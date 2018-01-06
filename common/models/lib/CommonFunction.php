@@ -231,4 +231,35 @@ class CommonFunction
         }
         return $time;
     }
+
+    /**
+     * 网络请求
+     *
+     * @param $method
+     * @param $url
+     * @param null $params
+     * @param bool $isHttps
+     * @return mixed|string
+     */
+    public static function http($method, $url, $params=null, $isHttps = false){
+        $curl = curl_init();
+        curl_setopt($curl, CURLOPT_CUSTOMREQUEST, strtoupper($method));
+        curl_setopt($curl, CURLOPT_URL, $url);
+        curl_setopt($curl, CURLOPT_HEADER, 0);
+        curl_setopt($curl, CURLOPT_RETURNTRANSFER, 1);
+        if(strtoupper($method) == 'POST'){
+            curl_setopt($curl, CURLOPT_POST, 1);
+            curl_setopt($curl, CURLOPT_POSTFIELDS, $params);
+        }
+        if($isHttps){
+            curl_setopt($curl, CURLOPT_SSL_VERIFYPEER, FALSE);
+            curl_setopt($curl, CURLOPT_SSL_VERIFYHOST, FALSE);
+        }
+        $data = curl_exec($curl);
+        if (curl_errno($curl)) {
+            return curl_error($curl);
+        }
+        curl_close($curl);
+        return json_decode($data, true);
+    }
 }
