@@ -104,6 +104,8 @@ class AuthService {
         }
         $transaction->commit();
         $data = [
+            'nickName' => $user['nickName'],
+            'avatarUrl' => $user['avatarUrl'],
             'openID' => $openID,
             'unionID' => $unionID,
             'sessionKey' => $sessionKey,
