@@ -86,9 +86,8 @@ class BaseController extends Controller
      * @param $data
      * @param string $msg
      */
-    protected function success($data, $msg=null){
+    protected function success($msg, $data=null){
         !$msg && $msg=UserMsg::$success;
-        $data && $data = $this->dealTime($data);
         $response = ['status'=>1, 'data'=>$data, 'msg'=>$msg];
         $this->result($response);
     }
@@ -96,11 +95,12 @@ class BaseController extends Controller
     /**
      * 操作失败
      *
-     * @param string $msg
+     * @param $msg
+     * @param null $data
      */
-    protected function fail($msg){
+    protected function fail($msg, $data=null){
         !$msg && $msg=UserMsg::$fail;
-        $response = ['status'=>0, 'msg'=>$msg];
+        $response = ['status'=>0, 'msg'=>$msg, 'data'=>$data];
         $this->result($response);
     }
 
@@ -121,10 +121,11 @@ class BaseController extends Controller
      * @param $return
      */
     protected function autoResult($return){
+        $data = array_key_exists('data', $return) ? $return['data'] : null;
         if($return['status'] == 1){
-            $this->success(array_key_exists('data', $return) ? $return['data'] : null, $return['msg']);
+            $this->success($return['msg'], $data);
         }else{
-            $this->fail($return['msg']);
+            $this->fail($return['msg'], $data);
         }
     }
 
@@ -157,25 +158,5 @@ class BaseController extends Controller
             $value -= 1;
         }
         return $value;
-    }
-
-    /**
-     * 处理时间
-     *
-     * @param $data
-     * @return mixed
-     */
-    protected function dealTime($data){
-        $timeArr = ['createTime', 'updateTime', 'dealTime', 'confirmTime', 'findTime', 'completeTime', 'retractTime', 'delayTime', 'originTime', 'signTime', 'loginTime', 'expireTime', 'feedbackTime'];
-        foreach ($data as $key => $item){
-            if(is_array($item)){
-                $data[$key] = $this->dealTime($item);
-            }else{
-                if(in_array($key, $timeArr)){
-                    $item && $data[$key] = date('Y-m-d', $item);
-                }
-            }
-        }
-        return $data;
     }
 }
