@@ -56,6 +56,7 @@ class TestController extends BaseController
 //        $audio->save(new Wav(), $outFile);
 //        $outFile = '/home/vagrant/code/1515312606.wav';
         $outFile = '/data/wwwroot/robot/storage/upload/2018/01/07/1515312606.wav';
+        $this->log('识别语音文件:'.$outFile);
         $baiduSpeechParams = \Yii::$app->params['baiduSpeech'];
         $baiduSpeech = new BaiduSpeech($baiduSpeechParams['appID'], $baiduSpeechParams['apiKey'], $baiduSpeechParams['secretKey']);
         $response = $baiduSpeech->recognize($outFile, null, null, 1);
