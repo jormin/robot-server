@@ -47,7 +47,6 @@ class UserService
         if(!$response['success']){
             $return['msg'] = '识别语音文件失败，失败原因：'.$response['msg'];
             $return['data'] = $response['data'];
-            $return['file'] = $outFile;
             return $return;
         }
         $userMessage = current($return['data']['result']);

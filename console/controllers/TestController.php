@@ -54,7 +54,7 @@ class TestController extends BaseController
 //        $ffmpeg = FFMpeg::create();
 //        $audio = $ffmpeg->open($file);
 //        $audio->save(new Wav(), $outFile);
-        $outFile = '/home/vagrant/code/1515311729.wav';
+        $outFile = '/data/wwwroot/robot/storage/upload/2018/01/07/1515311979.wav';
         $baiduSpeechParams = \Yii::$app->params['baiduSpeech'];
         $baiduSpeech = new BaiduSpeech($baiduSpeechParams['appID'], $baiduSpeechParams['apiKey'], $baiduSpeechParams['secretKey']);
         $response = $baiduSpeech->recognize($outFile, null, null, 1);
