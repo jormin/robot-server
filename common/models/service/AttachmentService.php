@@ -5,6 +5,7 @@ namespace common\models\service;
 use common\models\dao\Attachment;
 use common\models\lib\UserMsg;
 use FFMpeg\FFMpeg;
+use FFMpeg\Format\Audio\Wav;
 use FFMpeg\Format\Video\WMV;
 use Jormin\Excel\Excel;
 use yii\web\UploadedFile;
@@ -54,7 +55,7 @@ class AttachmentService
         $outFile = pathinfo($inputFile, PATHINFO_DIRNAME).'/'.basename($inputFile, pathinfo($inputFile, PATHINFO_EXTENSION)).'wav';
         $ffmpeg = FFMpeg::create();
         $audio = $ffmpeg->open($inputFile);
-        $audio->save(new WMV(), $outFile);
+        $audio->save(new Wav(), $outFile);
         return $outFile;
     }
 }
