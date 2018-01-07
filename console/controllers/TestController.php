@@ -1,6 +1,7 @@
 <?php
 namespace console\controllers;
 use FFMpeg\FFMpeg;
+use FFMpeg\Format\Audio\Wav;
 use FFMpeg\Format\Video\WMV;
 use Jormin\BaiduSpeech\BaiduSpeech;
 use Jormin\IP\IP;
@@ -48,14 +49,15 @@ class TestController extends BaseController
 
     public function actionConvert()
     {
-        $file = '/home/vagrant/code/1515264154.mp3';
-//        $outFile = '/home/vagrant/code/1515264154.wav';
-//        $ffmpeg = FFMpeg::create();
-//        $audio = $ffmpeg->open($file);
-//        $audio->save(new WMV(), $outFile);
+        $file = '/home/vagrant/code/1515311440.m4a';
+        $outFile = '/home/vagrant/code/1515311440.wav';
+        $ffmpeg = FFMpeg::create();
+        $audio = $ffmpeg->open($file);
+        $audio->save(new Wav(), $outFile);
+//        $outFile = '/home/vagrant/code/16k.wav';
         $baiduSpeechParams = \Yii::$app->params['baiduSpeech'];
         $baiduSpeech = new BaiduSpeech($baiduSpeechParams['appID'], $baiduSpeechParams['apiKey'], $baiduSpeechParams['secretKey']);
-        $response = $baiduSpeech->recognize($file, null, null, 1);
+        $response = $baiduSpeech->recognize($outFile, null, null, 1);
         var_dump($response);
     }
 

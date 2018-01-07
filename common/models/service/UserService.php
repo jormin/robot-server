@@ -36,12 +36,11 @@ class UserService
             return $return;
         }
         $messageAudio = $response['data'];
-//        $outFile = AttachmentService::convert($messageAudio);
-//        if(!file_exists($outFile)){
-//            $return['msg'] = '音频文件转码出错';
-//            return $return;
-//        }
-        $outFile = \Yii::$app->basePath . '/..'.$messageAudio;
+        $outFile = AttachmentService::convert($messageAudio);
+        if(!file_exists($outFile)){
+            $return['msg'] = '音频文件转码出错';
+            return $return;
+        }
         $baiduSpeechParams = \Yii::$app->params['baiduSpeech'];
         $baiduSpeech = new BaiduSpeech($baiduSpeechParams['appID'], $baiduSpeechParams['apiKey'], $baiduSpeechParams['secretKey']);
         $response = $baiduSpeech->recognize($outFile, null, null, $userID);
