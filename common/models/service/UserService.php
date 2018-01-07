@@ -46,6 +46,7 @@ class UserService
         $response = $baiduSpeech->recognize($outFile, null, null, $userID);
         if(!$response['success']){
             $return['msg'] = '识别语音文件失败，失败原因：'.$response['msg'];
+            $return['data'] = $response['data'];
             return $return;
         }
         $userMessage = current($return['data']['result']);
