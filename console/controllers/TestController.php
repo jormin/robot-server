@@ -54,13 +54,15 @@ class TestController extends BaseController
 //        $ffmpeg = FFMpeg::create();
 //        $audio = $ffmpeg->open($file);
 //        $audio->save(new Wav(), $outFile);
-//        $outFile = '/home/vagrant/code/1515312606.wav';
-        $outFile = '/data/wwwroot/robot/storage/upload/2018/01/07/1515312606.wav';
-        $this->log('识别语音文件:'.$outFile);
-        $baiduSpeechParams = \Yii::$app->params['baiduSpeech'];
-        $baiduSpeech = new BaiduSpeech($baiduSpeechParams['appID'], $baiduSpeechParams['apiKey'], $baiduSpeechParams['secretKey']);
-        $response = $baiduSpeech->recognize($outFile, null, null, 1);
-        var_dump($response);
+//        $outFile = '/data/wwwroot/robot/storage/upload/2018/01/07/1515312606.wav';
+        $outFiles = ['/home/vagrant/code/dev/robot/server/storage/upload/2018/01/07/8k.wav', '/home/vagrant/code/dev/robot/server/storage/upload/2018/01/07/16k.wav'];
+        foreach ($outFiles as $outFile){
+            $this->log('识别语音文件:'.$outFile);
+            $baiduSpeechParams = \Yii::$app->params['baiduSpeech'];
+            $baiduSpeech = new BaiduSpeech($baiduSpeechParams['appID'], $baiduSpeechParams['apiKey'], $baiduSpeechParams['secretKey']);
+            $response = $baiduSpeech->recognize($outFile, null, null, 1);
+            var_dump($response);
+        }
     }
 
 }
