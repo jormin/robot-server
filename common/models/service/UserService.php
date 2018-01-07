@@ -82,7 +82,7 @@ class UserService
         if(!$userChatRecord->save()){
             $return['msg'] = '记录文件失败';
         }
-        $return = ['status'=>1, 'msg'=>'操作成功', 'data'=>['reply'=>$reply, 'audio'=>$replyAudio]];
+        $return = ['status'=>1, 'msg'=>'操作成功', 'data'=>['reply'=>$reply, 'audio'=>\Yii::$app->params['attachmentDomain'].'/'.$replyAudio]];
         return $return;
     }
 }
