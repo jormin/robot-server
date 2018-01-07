@@ -55,7 +55,7 @@ class TestController extends BaseController
 //        $audio = $ffmpeg->open($file);
 //        $audio->save(new Wav(), $outFile);
 //        $outFile = '/data/wwwroot/robot/storage/upload/2018/01/07/1515312606.wav';
-        $outFiles = ['/home/vagrant/code/1515314199.wav', '/data/wwwroot/robot/storage/upload/2018/01/07/1515314199.wav', '/data/wwwroot/robot/storage/upload/2018/01/07/8k.wav', '/data/wwwroot/robot/storage/upload/2018/01/07/16k.wav'];
+        $outFiles = ['/home/vagrant/code/1515314324.wav', '/data/wwwroot/robot/storage/upload/2018/01/07/1515314199.wav', '/data/wwwroot/robot/storage/upload/2018/01/07/8k.wav', '/data/wwwroot/robot/storage/upload/2018/01/07/16k.wav'];
         foreach ($outFiles as $outFile){
             $this->log('识别语音文件:'.$outFile);
             $baiduSpeechParams = \Yii::$app->params['baiduSpeech'];
