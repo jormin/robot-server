@@ -49,8 +49,7 @@ class UserService
             $return['data'] = array_key_exists('data', $response) ? $response['data'] : null;
             return $return;
         }
-        p($response);die;
-        $userMessage = current($response['data'][0]);
+        $userMessage = current($response['data']);
         $tuLingParams = \Yii::$app->params['tuLing'];
         $tuLing = new TuLing($tuLingParams['apiKey']);
         $location = IP::ip2addr(gethostbyname(gethostname()), true, '');
