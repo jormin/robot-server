@@ -59,18 +59,18 @@ class UserService
             return $return;
         }
         $reply = $response['text'];
-        $response = $baiduSpeech->combine(\Yii::$app->basePath.'/../storage/combine/', $reply, $userID);
+        $response = $baiduSpeech->combine(\Yii::$app->basePath.'/../storage/combine', $reply, $userID);
         if(!$response['success']){
             $return['msg'] = '合成语音文件失败，失败原因：'.$response['msg'];
             return $return;
         }
-        // 上传文件
-        $qiniuParams = \Yii::$app->params['qiniu'];
-        $adapter = new QiniuAdapter($qiniuParams['accessKey'], $qiniuParams['secretKey'], $qiniuParams['bucket'], $qiniuParams['domain']);
-        $flysystem = new Filesystem($adapter);
         $replyAudio = str_replace(\Yii::$app->basePath.'/..',"", $response['data']);
-        $flysystem->write($messageAudio, file_get_contents(\Yii::$app->basePath . '/..'.$messageAudio));
-        $flysystem->write($replyAudio, file_get_contents(\Yii::$app->basePath . '/..'.$response['data']));
+//        // 上传文件
+//        $qiniuParams = \Yii::$app->params['qiniu'];
+//        $adapter = new QiniuAdapter($qiniuParams['accessKey'], $qiniuParams['secretKey'], $qiniuParams['bucket'], $qiniuParams['domain']);
+//        $flysystem = new Filesystem($adapter);
+//        $flysystem->write($messageAudio, file_get_contents(\Yii::$app->basePath . '/..'.$messageAudio));
+//        $flysystem->write($replyAudio, file_get_contents(\Yii::$app->basePath . '/..'.$response['data']));
 
         $userChatRecord = new UserChatRecord();
         $userChatRecord->userID = $userID;
