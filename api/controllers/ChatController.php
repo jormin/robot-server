@@ -19,7 +19,7 @@ class ChatController extends BaseController
      * 聊天
      */
     public function actionIndex(){
-        $chatRecordID = $this->getParam('charRecordID');
+        $chatRecordID = $this->getParam('chatRecordID');
         $return = UserService::chat($this->userID, $chatRecordID);
         $this->autoResult($return);
     }
