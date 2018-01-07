@@ -50,12 +50,12 @@ class TestController extends BaseController
     public function actionConvert()
     {
 //        $file = '/home/vagrant/code/1515312606.m4a';
-//        $outFile = '/home/vagrant/code/1515312606.wav';
+//        $outFile = '/home/vagrant/code/1515314199.wav';
 //        $ffmpeg = FFMpeg::create();
 //        $audio = $ffmpeg->open($file);
 //        $audio->save(new Wav(), $outFile);
 //        $outFile = '/data/wwwroot/robot/storage/upload/2018/01/07/1515312606.wav';
-        $outFiles = ['/data/wwwroot/robot/storage/upload/2018/01/07/8k.wav', '/data/wwwroot/robot/storage/upload/2018/01/07/16k.wav'];
+        $outFiles = ['/home/vagrant/code/1515314199.wav', '/data/wwwroot/robot/storage/upload/2018/01/07/1515314199.wav', '/data/wwwroot/robot/storage/upload/2018/01/07/8k.wav', '/data/wwwroot/robot/storage/upload/2018/01/07/16k.wav'];
         foreach ($outFiles as $outFile){
             $this->log('识别语音文件:'.$outFile);
             $baiduSpeechParams = \Yii::$app->params['baiduSpeech'];
