@@ -67,7 +67,7 @@ class UserService
     public static function chat($userID, $charRecordID){
         $return = ['status'=>0, 'msg'=>UserMsg::$timeOut];
         $userChatRecord = UserChatRecord::get($charRecordID, true);
-        if(!$userChatRecord || $userChatRecord['userID'] != $userID){
+        if(!$userChatRecord){
             return $return;
         }
         $tuLingParams = \Yii::$app->params['tuLing'];
