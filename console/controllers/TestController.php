@@ -46,16 +46,17 @@ class TestController extends BaseController
         exec('sudo play '.$response['data']);
     }
 
-    /**
-     *
-     */
     public function actionConvert()
     {
-        $file = '/home/vagrant/code/1515263872.mp3';
-        $outFile = '/home/vagrant/code/1515263872.wav';
-        $ffmpeg = FFMpeg::create();
-        $audio = $ffmpeg->open($file);
-        $audio->save(new WMV(), $outFile);
+        $file = '/home/vagrant/code/1515264154.mp3';
+//        $outFile = '/home/vagrant/code/1515264154.wav';
+//        $ffmpeg = FFMpeg::create();
+//        $audio = $ffmpeg->open($file);
+//        $audio->save(new WMV(), $outFile);
+        $baiduSpeechParams = \Yii::$app->params['baiduSpeech'];
+        $baiduSpeech = new BaiduSpeech($baiduSpeechParams['appID'], $baiduSpeechParams['apiKey'], $baiduSpeechParams['secretKey']);
+        $response = $baiduSpeech->recognize($file, null, null, 1);
+        var_dump($response);
     }
 
 }

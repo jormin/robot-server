@@ -44,7 +44,6 @@ class UserService
         $baiduSpeechParams = \Yii::$app->params['baiduSpeech'];
         $baiduSpeech = new BaiduSpeech($baiduSpeechParams['appID'], $baiduSpeechParams['apiKey'], $baiduSpeechParams['secretKey']);
         $response = $baiduSpeech->recognize($outFile, null, null, $userID);
-        $response = $baiduSpeech->combine(\Yii::$app->basePath.'/../storage/combine/', $response['text'], 1);
         if(!$response['success']){
             $return['msg'] = '识别语音文件失败，失败原因：'.$response['msg'];
             return $return;
