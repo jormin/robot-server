@@ -23,13 +23,7 @@ use yii\web\UploadedFile;
 class UserService
 {
 
-    /**
-     * 上传文件
-     *
-     * @param $userID
-     * @return array
-     */
-    public static function chat($userID){
+    public static function recognize($userID){
         $return = ['status'=>0, 'msg'=>UserMsg::$timeOut];
         $response = AttachmentService::upload();
         if($response['status'] == 0){
@@ -50,39 +44,56 @@ class UserService
             return $return;
         }
         $userMessage = current($response['data']);
+        $userChatRecord = new UserChatRecord();
+        $userChatRecord->userID = $userID;
+        $userChatRecord->message = $userMessage;
+        $userChatRecord->messageAudio = $messageAudio;
+        $userChatRecord->config = json_encode(\Yii::$app->params['defaultChatConfig']);
+        if(!$userChatRecord->save()){
+            $return['msg'] = '记录聊天信息出错';
+            return $return;
+        }
+        $return = ['status'=>1, 'msg'=>'识别成功', 'data'=>['chatRecord'=>UserChatRecord::combineCHatRecord($userChatRecord->attributes)]];
+        return $return;
+    }
+
+    /**
+     * 聊天
+     *
+     * @param $userID
+     * @param $charRecordID
+     * @return array
+     */
+    public static function chat($userID, $charRecordID){
+        $return = ['status'=>0, 'msg'=>UserMsg::$timeOut];
+        $userChatRecord = UserChatRecord::get($charRecordID, true);
+        if(!$userChatRecord || $userChatRecord['userID'] != $userID){
+            return $return;
+        }
         $tuLingParams = \Yii::$app->params['tuLing'];
         $tuLing = new TuLing($tuLingParams['apiKey']);
         $location = IP::ip2addr(gethostbyname(gethostname()), true, '');
-        $response = $tuLing->chat($userMessage, 1, $location);
+        $response = $tuLing->chat($userChatRecord['message'], $userID, $location);
         if(!$response['text']){
             $return['msg'] = '没有回复文本消息';
             return $return;
         }
         $reply = $response['text'];
+        $baiduSpeechParams = \Yii::$app->params['baiduSpeech'];
+        $baiduSpeech = new BaiduSpeech($baiduSpeechParams['appID'], $baiduSpeechParams['apiKey'], $baiduSpeechParams['secretKey']);
         $response = $baiduSpeech->combine(\Yii::$app->basePath.'/../storage/combine', $reply, $userID);
         if(!$response['success']){
             $return['msg'] = '合成语音文件失败，失败原因：'.$response['msg'];
             return $return;
         }
         $replyAudio = str_replace(\Yii::$app->basePath.'/..',"", $response['data']);
-//        // 上传文件
-//        $qiniuParams = \Yii::$app->params['qiniu'];
-//        $adapter = new QiniuAdapter($qiniuParams['accessKey'], $qiniuParams['secretKey'], $qiniuParams['bucket'], $qiniuParams['domain']);
-//        $flysystem = new Filesystem($adapter);
-//        $flysystem->write($messageAudio, file_get_contents(\Yii::$app->basePath . '/..'.$messageAudio));
-//        $flysystem->write($replyAudio, file_get_contents(\Yii::$app->basePath . '/..'.$response['data']));
-
-        $userChatRecord = new UserChatRecord();
-        $userChatRecord->userID = $userID;
-        $userChatRecord->message = $userMessage;
         $userChatRecord->reply = $reply;
-        $userChatRecord->messageAudio = $messageAudio;
         $userChatRecord->replyAudio = $replyAudio;
-        $userChatRecord->config = json_encode(\Yii::$app->params['defaultChatConfig']);
         if(!$userChatRecord->save()){
             $return['msg'] = '记录文件失败';
+            return $return;
         }
-        $return = ['status'=>1, 'msg'=>'操作成功', 'data'=>['reply'=>$reply, 'audio'=>\Yii::$app->params['attachmentDomain'].'/'.$replyAudio]];
+        $return = ['status'=>1, 'msg'=>'操作成功', 'data'=>['chatRecord'=>UserChatRecord::combineCHatRecord($userChatRecord->attributes)]];
         return $return;
     }
 }
