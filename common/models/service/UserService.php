@@ -46,10 +46,10 @@ class UserService
         $response = $baiduSpeech->recognize($outFile, null, null, $userID);
         if(!$response['success']){
             $return['msg'] = '识别语音文件失败，失败原因：'.$response['msg'];
-            $return['data'] = $response['data'];
+            $return['data'] = array_key_exists('data', $response) ? $response['data'] : null;
             return $return;
         }
-        $userMessage = current($return['data']['result']);
+        $userMessage = current($response['data'][0]);
         $tuLingParams = \Yii::$app->params['tuLing'];
         $tuLing = new TuLing($tuLingParams['apiKey']);
         $location = IP::ip2addr(gethostbyname(gethostname()), true, '');

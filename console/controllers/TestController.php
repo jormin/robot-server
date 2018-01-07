@@ -62,6 +62,24 @@ class TestController extends BaseController
             $baiduSpeech = new BaiduSpeech($baiduSpeechParams['appID'], $baiduSpeechParams['apiKey'], $baiduSpeechParams['secretKey']);
             $response = $baiduSpeech->recognize($outFile, null, null, 1);
             var_dump($response);
+            if(!$response['success']){
+                return null;
+            }
+            $userMessage = current($response['data']);
+            $tuLingParams = \Yii::$app->params['tuLing'];
+            $tuLing = new TuLing($tuLingParams['apiKey']);
+            $location = IP::ip2addr(gethostbyname(gethostname()), true, '');
+            $response = $tuLing->chat($userMessage, 1, $location);
+            var_dump($response);
+            if(!$response['text']){
+                return null;
+            }
+            $reply = $response['text'];
+            $response = $baiduSpeech->combine(\Yii::$app->basePath.'/../storage/combine/', $reply, 1);
+            var_dump($response);
+            if(!$response['success']){
+                return null;
+            }
         }
     }
 
