@@ -49,12 +49,13 @@ class TestController extends BaseController
 
     public function actionConvert()
     {
-//        $file = '/home/vagrant/code/1515311440.m4a';
-//        $outFile = '/home/vagrant/code/1515311440.wav';
+//        $file = '/home/vagrant/code/1515312606.m4a';
+//        $outFile = '/home/vagrant/code/1515312606.wav';
 //        $ffmpeg = FFMpeg::create();
 //        $audio = $ffmpeg->open($file);
 //        $audio->save(new Wav(), $outFile);
-        $outFile = '/data/wwwroot/robot/storage/upload/2018/01/07/1515311979.wav';
+//        $outFile = '/home/vagrant/code/1515312606.wav';
+        $outFile = '/data/wwwroot/robot/storage/upload/2018/01/07/1515312606.wav';
         $baiduSpeechParams = \Yii::$app->params['baiduSpeech'];
         $baiduSpeech = new BaiduSpeech($baiduSpeechParams['appID'], $baiduSpeechParams['apiKey'], $baiduSpeechParams['secretKey']);
         $response = $baiduSpeech->recognize($outFile, null, null, 1);
