@@ -2,19 +2,11 @@
 
 namespace common\models\service;
 
-use common\models\dao\Attachment;
 use common\models\dao\UserChatRecord;
-use common\models\dao\UserConfig;
 use common\models\lib\UserMsg;
-use FFMpeg\FFMpeg;
-use FFMpeg\Format\Video\WMV;
 use Jormin\BaiduSpeech\BaiduSpeech;
-use Jormin\Excel\Excel;
 use Jormin\IP\IP;
 use Jormin\TuLing\TuLing;
-use League\Flysystem\Filesystem;
-use Overtrue\Flysystem\Qiniu\QiniuAdapter;
-use yii\web\UploadedFile;
 
 /**
  * Class UserService
@@ -74,11 +66,17 @@ class UserService
         $tuLing = new TuLing($tuLingParams['apiKey']);
         $location = IP::ip2addr(gethostbyname(gethostname()), true, '');
         $response = $tuLing->chat($userChatRecord['message'], $userID, $location);
+        $replyCode = $response['code'];
+        if(in_array($replyCode, [4001, 4002, 4004, 4007])){
+            $return['msg'] = '聊天异常,原因:'.$response['text'];
+            return $return;
+        }
         if(!$response['text']){
             $return['msg'] = '没有回复文本消息';
             return $return;
         }
         $reply = $response['text'];
+        $originData = $response;
         $baiduSpeechParams = \Yii::$app->params['baiduSpeech'];
         $baiduSpeech = new BaiduSpeech($baiduSpeechParams['appID'], $baiduSpeechParams['apiKey'], $baiduSpeechParams['secretKey']);
         $response = $baiduSpeech->combine(\Yii::$app->basePath.'/../storage/combine', $reply, $userID);
@@ -89,10 +87,13 @@ class UserService
         $replyAudio = str_replace(\Yii::$app->basePath.'/..',"", $response['data']);
         $userChatRecord->reply = $reply;
         $userChatRecord->replyAudio = $replyAudio;
+        $userChatRecord->replyCode = $replyCode;
+        $userChatRecord->originData = json_encode($originData);
         if(!$userChatRecord->save()){
             $return['msg'] = '记录文件失败';
             return $return;
         }
+        $userChatRecord->originData = json_decode($userChatRecord->originData, true);
         $return = ['status'=>1, 'msg'=>'操作成功', 'data'=>['chatRecord'=>UserChatRecord::combineCHatRecord($userChatRecord->attributes)]];
         return $return;
     }

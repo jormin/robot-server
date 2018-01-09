@@ -3,7 +3,6 @@
 namespace common\models\dao;
 
 use common\models\lib\Cache;
-use Yii;
 
 /**
  * This is the model class for table "robot_user_chat_record".
@@ -13,7 +12,9 @@ use Yii;
  * @property string $message 消息内容
  * @property string $reply 回复内容
  * @property string $messageAudio 语音文件
- * @property string $replyAudio
+ * @property string $replyAudio 回复语音
+ * @property string $replyCode 回复类型编码
+ * @property string $originData 回复信息
  * @property string $config 配置
  * @property int $createTime 创建时间
  * @property int $updateTime 更新时间
@@ -38,7 +39,7 @@ class UserChatRecord extends \yii\db\ActiveRecord
         return [
             [['message', 'messageAudio', 'config'], 'required'],
             [['userID', 'createTime', 'updateTime'], 'integer'],
-            [['message', 'reply', 'messageAudio', 'replyAudio', 'config'], 'string', 'max' => 255],
+            [['message', 'reply', 'messageAudio', 'replyAudio', 'replyCode', 'originData', 'config'], 'string', 'max' => 255],
             [['userID'], 'exist', 'skipOnError' => true, 'targetClass' => User::className(), 'targetAttribute' => ['userID' => 'id']],
         ];
     }
@@ -54,7 +55,9 @@ class UserChatRecord extends \yii\db\ActiveRecord
             'message' => '消息内容',
             'reply' => '回复内容',
             'messageAudio' => '语音文件',
-            'replyAudio' => 'Reply Audio',
+            'replyAudio' => '回复语音文件',
+            'replyCode' => '回复类型编码',
+            'originData' => '回复信息',
             'config' => '配置',
             'createTime' => '创建时间',
             'updateTime' => '更新时间',
