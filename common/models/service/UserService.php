@@ -87,7 +87,7 @@ class UserService
         $replyAudio = str_replace(\Yii::$app->basePath.'/..',"", $response['data']);
         $userChatRecord->reply = $reply;
         $userChatRecord->replyAudio = $replyAudio;
-        $userChatRecord->replyCode = $replyCode;
+        $userChatRecord->replyCode = ''.$replyCode;
         $userChatRecord->originData = json_encode($originData);
         if(!$userChatRecord->save()){
             p($userChatRecord);
