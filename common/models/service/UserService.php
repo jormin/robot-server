@@ -90,7 +90,8 @@ class UserService
         $userChatRecord->replyCode = $replyCode;
         $userChatRecord->originData = json_encode($originData);
         if(!$userChatRecord->save()){
-            $return['msg'] = '记录文件失败,失败原因:'.current($userChatRecord->errors);
+            p($userChatRecord->errors);
+            $return['msg'] = '记录文件失败';
             return $return;
         }
         $userChatRecord->originData = json_decode($userChatRecord->originData, true);
