@@ -16,6 +16,7 @@ use common\models\lib\Cache;
  * @property string $replyCode 回复类型编码
  * @property string $originData 回复信息
  * @property string $config 配置
+ * @property string $qiniuKey 七牛存储Key
  * @property int $createTime 创建时间
  * @property int $updateTime 更新时间
  *
@@ -40,6 +41,7 @@ class UserChatRecord extends \yii\db\ActiveRecord
             [['message', 'messageAudio', 'config'], 'required'],
             [['userID', 'createTime', 'updateTime'], 'integer'],
             [['message', 'reply', 'messageAudio', 'replyAudio', 'replyCode', 'originData', 'config'], 'string', 'max' => 255],
+            [['qiniuKey'], 'string', 'max' => 64],
             [['userID'], 'exist', 'skipOnError' => true, 'targetClass' => User::className(), 'targetAttribute' => ['userID' => 'id']],
         ];
     }
@@ -59,6 +61,7 @@ class UserChatRecord extends \yii\db\ActiveRecord
             'replyCode' => '回复类型编码',
             'originData' => '回复信息',
             'config' => '配置',
+            'qiniuKey' => '七牛存储Key',
             'createTime' => '创建时间',
             'updateTime' => '更新时间',
         ];
@@ -128,7 +131,7 @@ class UserChatRecord extends \yii\db\ActiveRecord
             return $chatRecord;
         }
         $chatRecord['messageAudio'] && $chatRecord['messageAudio'] = \Yii::$app->params['attachmentDomain'].'/'.$chatRecord['messageAudio'];
-        $chatRecord['replyAudio'] && $chatRecord['replyAudio'] = \Yii::$app->params['attachmentDomain'].'/'.$chatRecord['replyAudio'];
+        $chatRecord['replyAudio'] && $chatRecord['replyAudio'] = \Yii::$app->params['qiniu']['domain'].'/'.$chatRecord['qiniuKey'];
         return $chatRecord;
     }
 }

@@ -6,6 +6,7 @@ use common\models\dao\UserChatRecord;
 use common\models\lib\UserMsg;
 use Jormin\BaiduSpeech\BaiduSpeech;
 use Jormin\IP\IP;
+use Jormin\Qiniu\Qiniu;
 use Jormin\TuLing\TuLing;
 
 /**
@@ -51,10 +52,10 @@ class UserService
 
     /**
      * 聊天
-     *
      * @param $userID
      * @param $charRecordID
      * @return array
+     * @throws \Exception
      */
     public static function chat($userID, $charRecordID){
         $return = ['status'=>0, 'msg'=>UserMsg::$timeOut];
@@ -64,7 +65,7 @@ class UserService
         }
         $tuLingParams = \Yii::$app->params['tuLing'];
         $tuLing = new TuLing($tuLingParams['apiKey']);
-        $location = IP::ip2addr(gethostbyname(gethostname()), true, '');
+        $location = IP::ip2addr(gethostbyname(gethostname()), '');
         $response = $tuLing->chat($userChatRecord['message'], $userID, $location);
         $replyCode = $response['code'];
         if(in_array($replyCode, [4001, 4002, 4004, 4007])){
@@ -84,14 +85,23 @@ class UserService
             $return['msg'] = '合成语音文件失败，失败原因：'.$response['msg'];
             return $return;
         }
-        $replyAudio = str_replace(\Yii::$app->basePath.'/..',"", $response['data']);
+        $filePath = $response['data'];
+        $replyAudio = str_replace(\Yii::$app->basePath.'/..',"", $filePath);
+        // 上传文件到七牛
+        $qiniuConfig = \Yii::$app->params['qiniu'];
+        $qiniu = new Qiniu($qiniuConfig['accessKey'], $qiniuConfig['secretKey']);
+        $response = $qiniu->upload($qiniuConfig['bucket'], $filePath);
+        if(!$response['success']){
+            $return['msg'] = '上传七牛失败，失败原因：'.$response['message'];
+            return $return;
+        }
+        $qiniuKey = $response['data']['key'];
         $userChatRecord->reply = $reply;
         $userChatRecord->replyAudio = $replyAudio;
         $userChatRecord->replyCode = ''.$replyCode;
         $userChatRecord->originData = json_encode($originData);
+        $userChatRecord->qiniuKey = $qiniuKey;
         if(!$userChatRecord->save()){
-            p($userChatRecord);
-            p($userChatRecord->errors);
             $return['msg'] = '记录文件失败';
             return $return;
         }

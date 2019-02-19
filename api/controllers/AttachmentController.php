@@ -12,7 +12,7 @@ class AttachmentController extends BaseController
      * 上传文件
      */
     public function actionUpload(){
-        $return = AttachmentService::upload($this->userID);
+        $return = AttachmentService::upload();
         $this->autoResult($return);
     }
 

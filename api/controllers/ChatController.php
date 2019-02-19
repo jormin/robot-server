@@ -17,6 +17,7 @@ class ChatController extends BaseController
 
     /**
      * 聊天
+     * @throws \Exception
      */
     public function actionChat(){
         $chatRecordID = $this->getParam('chatRecordID');

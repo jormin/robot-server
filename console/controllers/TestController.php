@@ -17,9 +17,11 @@ class TestController extends BaseController
 
     /**
      * 测试
+     * @throws \Exception
      */
     public function actionIndex(){
-
+        $response = UserService::chat(38, 999);
+        print_r($response);
     }
 
     /**
@@ -54,7 +56,7 @@ class TestController extends BaseController
             $userMessage = current($response['data']);
             $tuLingParams = \Yii::$app->params['tuLing'];
             $tuLing = new TuLing($tuLingParams['apiKey']);
-            $location = IP::ip2addr(gethostbyname(gethostname()), true, '');
+            $location = IP::ip2addr(gethostbyname(gethostname()), '');
             $response = $tuLing->chat($userMessage, 1, $location);
             var_dump($response);
             if(!$response['text']){
